@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devops-app-deployment
+  namespace: devops-lab
+  labels:
+    app: devops-app
+spec:
+  replicas: 3 # Solicita 3 cópias idênticas (Pods) rodando em paralelo
+  selector:
+    matchLabels:
+      app: devops-app # Como o Deployment reconhece quais Pods são dele
+  template:
+    metadata:
+      labels:
+        app: devops-app # Etiqueta anexada aos Pods criados
+    spec:
+      containers:
+        - name: api
+          image: devops-app:v1
+          imagePullPolicy: Never # Usa a imagem local importada para o k3d
+          ports:
+            - containerPort: 8000
+          resources: # Boa prática de SRE: Limite e reserva de recursos por container
+            requests:
+              cpu: "100m" # Reserva 0.1 vCPU
+              memory: "128Mi" # Reserva 128MB de RAM
+            limits:
+              cpu: "250m" # Limite máximo de CPU
+              memory: "256Mi" # Limite máximo de RAM (evita consumo descontrolado)
