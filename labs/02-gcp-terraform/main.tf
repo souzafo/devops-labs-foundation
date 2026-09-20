@@ -44,6 +44,7 @@ resource "google_compute_firewall" "allow_web_ssh" {
 }
 
 # 4. Instância de Máquina Virtual (Compute Engine - e2-micro / Always Free Tier)
+# Instância de Máquina Virtual com Docker pré-instalado no Startup Script
 resource "google_compute_instance" "web_vm" {
   name         = "devops-lab-vm"
   machine_type = "e2-micro"
@@ -61,10 +62,16 @@ resource "google_compute_instance" "web_vm" {
     network    = google_compute_network.custom_vpc.id
     subnetwork = google_compute_subnetwork.custom_subnet.id
 
-    # Atribui IP público dinâmico para acesso SSH/HTTP
     access_config {}
   }
 
-  # Script de inicialização básico (Startup Script)
-  metadata_startup_script = "echo 'VM pronta para laboratórios!' > /tmp/status.txt"
+  # Script de inicialização: Instala Docker e executa nossa API
+  metadata_startup_script = <<-EOF
+    #!/bin/bash
+    apt-get update
+    apt-get install -y docker.io
+    systemctl start docker
+    systemctl enable docker
+    docker run -d -p 8000:8000 --name app --restart always python:3.11-slim sh -c "pip install fastapi uvicorn prometheus-fastapi-instrumentator && python -c 'import uvicorn, time; from fastapi import FastAPI; from prometheus_fastapi_instrumentator import Instrumentator; app = FastAPI(); Instrumentator().instrument(app).expose(app); app.add_api_route(\"/\", lambda: {\"status\": \"ok\", \"cloud\": \"gcp-compute-engine\"}); uvicorn.run(app, host=\"0.0.0.0\", port=8000)'"
+  EOF
 }
