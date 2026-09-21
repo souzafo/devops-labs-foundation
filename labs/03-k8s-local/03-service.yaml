@@ -3,11 +3,14 @@ kind: Service
 metadata:
   name: devops-app-service
   namespace: devops-lab
+  labels:
+    app: devops-app
 spec:
-  type: ClusterIP # IP virtual estático visível apenas dentro do cluster
+  type: ClusterIP
   selector:
-    app: devops-app # Encamina o tráfego para os Pods que possuem a label app: devops-app
+    app: devops-app
   ports:
-    - protocol: TCP
-      port: 80 # Porta exposta pelo Service
-      targetPort: 8000 # Porta onde o container da API escuta
+    - name: http # Nome necessário para o ServiceMonitor mapear
+      protocol: TCP
+      port: 80
+      targetPort: 8000

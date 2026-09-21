@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: devops-app-monitor
+  namespace: monitoring # O ServiceMonitor fica no namespace do Prometheus
+  labels:
+    release: prometheus # Vincula este monitor à release do Helm do Prometheus
+spec:
+  namespaceSelector:
+    matchNames:
+      - devops-lab # Aponta para o namespace onde a nossa API está rodando
+  selector:
+    matchLabels:
+      app: devops-app # Filtra o Service que possui a label app: devops-app
+  endpoints:
+    - port: http # Nome ou porta onde a API expõe métricas
+      path: /metrics # Endpoint de métricas OpenMetrics/Prometheus
+      interval: 15s # Frequência de coleta
