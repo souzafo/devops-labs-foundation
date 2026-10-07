@@ -28,12 +28,12 @@ jobs:
         run: |
           docker run --rm -v $(pwd):/src returntocorp/semgrep semgrep --config=auto /src
 
-      # 3. Trivy - IaC / Dockerfile Scan (apenas para o Lab 04)
+      # 3. Trivy - IaC / Dockerfile Scan (restrito ao Lab 04)
       - name: Run Trivy Dockerfile Scan
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'config'
-          scan-dir: 'labs/04-shift-left-security'
+          scan-ref: 'labs/04-shift-left-security'
           hide-progress: false
           format: 'table'
           exit-code: '1'
