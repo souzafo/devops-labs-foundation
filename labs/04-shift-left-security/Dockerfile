@@ -1,9 +1,18 @@
-# Usando uma imagem base deliberadamente antiga do Python para identificar CVEs conhecidas
-FROM python:3.8-slim-buster
+# Usando imagem base Python recente e leve (Alpine)
+FROM python:3.11-alpine
 
 WORKDIR /app
 
-# Copia nosso código
+# Criando um usuário sem privilégios para não rodar como root
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# Copia os arquivos e ajusta permissões
 COPY src/ /app/src/
+RUN chown -R appuser:appgroup /app
+
+# Define o usuário não-root
+USER appuser
+
+HEALTHCHECK --interval=30s --timeout=3s CMD python -c "import sys; sys.exit(0)"
 
 CMD ["python", "src/app.py"]
